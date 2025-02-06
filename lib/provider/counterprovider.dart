@@ -1,55 +1,62 @@
-
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final FirebaseFirestore firestore = FirebaseFirestore.instance;
-final FirebaseAuth auth = FirebaseAuth.instance;
+final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
-class CounterProvider extends StateNotifier<int> {
-  CounterProvider() : super(0) {
-    loadNum();
+
+class CounterNotifier extends StateNotifier<int> {
+  CounterNotifier() : super(0) {
+    _auth.authStateChanges().listen((User? user) {
+      if (user != null) {
+        _loadCounter();
+      } else {
+        state = 0; 
+      }
+    });
   }
 
   
-  Future<void> loadNum() async {
-    String? uid = auth.currentUser?.uid;
+  Future<void> _loadCounter() async {
+    String? uid = _auth.currentUser?.uid;
     if (uid == null) return;
 
-    DocumentSnapshot doc = await firestore.collection('users').doc(uid).get();
+    DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
     if (doc.exists) {
-      state = doc['value'];
+      state = (doc.data() as Map<String, dynamic>)['value'] ?? 0;
     } else {
-      await firestore.collection('users').doc(uid).set({'value': state});
+      await _firestore.collection('users').doc(uid).set({'value': state});
     }
   }
 
   
   Future<void> increment() async {
     state++;
-    updateNum();
+
+    _updateCounter();
   }
 
-  
   Future<void> decrement() async {
 
-      state--;
-    updateNum();
+
+
+
+    state--;
+    _updateCounter();
   }
 
-  
-  Future<void> updateNum() async {
-    String? uid = auth.currentUser?.uid;
+  Future<void> _updateCounter() async {
+    String? uid = _auth.currentUser?.uid;
     if (uid != null) {
-      await firestore.collection('users').doc(uid).update({'value': state});
+      await _firestore.collection('users').doc(uid).set({'value': state}, SetOptions(merge: true));
     }
   }
 }
 
 
-final counterProvider = StateNotifierProvider<CounterProvider, int>((ref) {
-  return CounterProvider();
+
+final counterProvider = StateNotifierProvider<CounterNotifier, int>((ref) {
+  return CounterNotifier();
 });

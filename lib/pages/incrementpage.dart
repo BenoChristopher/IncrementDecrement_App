@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:incrementapp/components/mybutton.dart';
 import 'package:incrementapp/components/drawer.dart';
 
-
 import '../provider/counterprovider.dart';
+
 
 class MyIncrementPage extends ConsumerWidget {
   const MyIncrementPage({super.key});
@@ -13,8 +13,7 @@ class MyIncrementPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final counter = ref.watch(counterProvider); 
-    
-    final countProvider = ref.read(counterProvider.notifier); 
+    final counterNotifier = ref.read(counterProvider.notifier); 
 
     return Scaffold(
       appBar: AppBar(title: Text('Increment App', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -29,9 +28,14 @@ class MyIncrementPage extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                MyButton(buttonName: 'Decrement', buttonColor: Colors.red.shade400, onPressed: countProvider.decrement),
+                MyButton(buttonName: 'Decrement',
+                 buttonColor: Colors.red.shade400, 
+                 onPressed: counterNotifier.decrement),
                 SizedBox(width: 30),
-                MyButton(buttonName: 'Increment', buttonColor: Colors.green.shade400, onPressed: countProvider.increment),
+                MyButton(buttonName: 'Increment',
+                
+                 buttonColor: Colors.green.shade400,
+                  onPressed: counterNotifier.increment),
               ],
             ),
           ],
@@ -40,6 +44,7 @@ class MyIncrementPage extends ConsumerWidget {
     );
   }
 }
+
 
 
 
